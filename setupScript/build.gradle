@@ -25,21 +25,37 @@ destinationPath = destination
 }
  
  task cloneGitRepo(type: GitClone){
- def destination = file("F://Dithok//Intern//test//LoginModule")
- uri = "https://github.com/rugit/LoginModule"
+ def destination = file(project.baseDir.replace("\\","//")+'//LoginModule')
+ uri = project.bootRepo
  destinationPath = destination
  bare = false
  enabled = !destination.exists()
  }
  
  task serverBuild(type: GradleBuild){
- 	dir = 'F://Dithok//Intern//test//LoginModule'
+ 	dir = file(project.baseDir.replace("\\","//")+'//LoginModule')
  	tasks = ['booRun']
  }
+
+
+task executeAPK(type:Exec) {
+  workingDir 'new_login2/new_login2/'
+
+  //on windows:
+  commandLine 'cmd', '/c', 'flutter' , 'build' , 'apk'
+
+  //store the output instead of printing to the console:
+  standardOutput = new ByteArrayOutputStream()
+
+  //extension method stopTomcat.output() can be used to obtain the output:
+  ext.output = {
+    return standardOutput.toString()
+  }
+}
  
- task executeAPK(type: GradleBuild){
- dir = 'F://Dithok//craft//14-Sep//new_login2//new_login2//android'
- tasks = ['installDebug']
+// task executeAPK(type: GradleBuild){
+// dir = file(project.baseDir.replace("\\","//")+'//new_login2//new_login2' + '//android')
+// tasks = ['installDebug']
  /*doFirst{
  commandLine "cmd", "cd", "F://Dithok//craft//14-Sep//new_login2//new_login2"
  }*/
@@ -47,9 +63,9 @@ destinationPath = destination
  workingDir "F://Dithok//craft//14-Sep//new_login2//new_login2"
  commandLine "cmd", "flutter", "run"
  }*/
-  }
+ // }
   
-  task setupDev {
+task setupDev {
     dependsOn 'cloneGitRepo'
     dependsOn 'serverBuild'
     tasks.findByName('serverBuild').mustRunAfter 'cloneGitRepo'
@@ -57,11 +73,16 @@ destinationPath = destination
 }
 
 task setupAndroid{
-dependsOn 'cloneFlutterRepo'
-dependsOn 'executeAPK'
-tasks.findByName('executeAPK').mustRunAfter 'cloneFlutterRepo'
+	dependsOn 'cloneFlutterRepo'
+	dependsOn 'executeAPK'
+	tasks.findByName('executeAPK').mustRunAfter 'cloneFlutterRepo'
 }
 
-task locExtract{
-println project.baseDir.replace("\\","//")
+task executeDev{
+	dependsOn 'setupDev'
+	dependsOn 'setupAndroid'
+	tasks.findByName('setupAndroid').mustRunAfter 'setupDev'
 }
+/*task locExtract{
+println project.baseDir.replace("\\","//")
+}*/
