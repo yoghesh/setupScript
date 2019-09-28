@@ -41,35 +41,19 @@ destinationPath = destination
 task executeAPK(type:Exec) {
   workingDir 'new_login2/new_login2/'
 
-  //on windows:
   commandLine 'cmd', '/c', 'flutter' , 'build' , 'apk'
-
-  //store the output instead of printing to the console:
   standardOutput = new ByteArrayOutputStream()
 
-  //extension method stopTomcat.output() can be used to obtain the output:
   ext.output = {
     return standardOutput.toString()
   }
 }
  
-// task executeAPK(type: GradleBuild){
-// dir = file(project.baseDir.replace("\\","//")+'//new_login2//new_login2' + '//android')
-// tasks = ['installDebug']
- /*doFirst{
- commandLine "cmd", "cd", "F://Dithok//craft//14-Sep//new_login2//new_login2"
- }*/
- /*exec {
- workingDir "F://Dithok//craft//14-Sep//new_login2//new_login2"
- commandLine "cmd", "flutter", "run"
- }*/
- // }
   
 task setupDev {
     dependsOn 'cloneGitRepo'
     dependsOn 'serverBuild'
     tasks.findByName('serverBuild').mustRunAfter 'cloneGitRepo'
-    //tasks.findByName('publish').mustRunAfter 'build'
 }
 
 task setupAndroid{
@@ -83,6 +67,3 @@ task executeDev{
 	dependsOn 'setupAndroid'
 	tasks.findByName('setupAndroid').mustRunAfter 'setupDev'
 }
-/*task locExtract{
-println project.baseDir.replace("\\","//")
-}*/
